@@ -4,13 +4,13 @@ buildscript {
     }
 
     repositories {
-        maven {url "http://nexus.cloud.school.thoughtworks.cn/repository/maven-public/"}
         maven {url 'http://maven.aliyun.com/nexus/content/groups/public/'}
         mavenCentral()
     }
 
     dependencies {
         classpath "org.springframework.boot:spring-boot-gradle-plugin:${springBootVersion}"
+        classpath "org.springframework.cloud:spring-cloud-contract-gradle-plugin:2.1.0.RELEASE"
     }
 }
 
@@ -23,6 +23,8 @@ apply plugin: 'idea'
 apply plugin: 'eclipse'
 apply plugin: 'org.springframework.boot'
 apply plugin: 'io.spring.dependency-management'
+apply plugin: "spring-cloud-contract"
+apply plugin: 'maven-publish'
 
 group = 'com.dmall'
 version = '0.1.0'
@@ -35,7 +37,6 @@ jar {
 }
 
 repositories {
-    maven {url "http://nexus.cloud.school.thoughtworks.cn/repository/maven-public/"}
     maven {url 'http://maven.aliyun.com/nexus/content/groups/public/'}
     mavenCentral()
 }
@@ -53,6 +54,7 @@ dependencies {
     implementation 'org.modelmapper:modelmapper:1.1.1'
 
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
+    testImplementation 'org.springframework.cloud:spring-cloud-starter-contract-verifier'
     testImplementation 'com.tngtech.archunit:archunit:0.9.3'
 
     compileOnly 'org.projectlombok:lombok:1.18.8'
@@ -69,4 +71,17 @@ dependencyManagement {
 
 springBoot {
     buildInfo()
+}
+
+contracts {
+    packageWithBaseClasses = 'com.dmall.inventoryservice.contractTest'
+}
+
+publishing {
+    publications {
+        stubs(MavenPublication) {
+            artifactId "${project.name}-stubs"
+            artifact verifierStubsJar
+        }
+    }
 }
